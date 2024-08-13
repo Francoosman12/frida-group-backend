@@ -4,6 +4,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const salesRoutes = require('./routes/salesRoutes');
 const productRoutes = require('./routes/productRoutes');
+require('dotenv').config();  // Cargar variables de entorno desde .env
 
 const app = express();
 
