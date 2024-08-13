@@ -1,12 +1,11 @@
-const mongoose = require('mongoose');
-
 const saleSchema = new mongoose.Schema({
-  saleNumber: { type: Number, unique: true },
-  ean: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  date: { type: Date, default: Date.now }
-});
-
+    ean: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    price: { type: Number, required: true }, // Asegúrate de que 'price' es un número
+    date: { type: Date, default: Date.now },
+    description: { type: String, default: 'N/A' }
+  });
+  
 // Middleware para generar el número de venta secuencial
 saleSchema.pre('save', async function(next) {
   if (this.isNew) {
