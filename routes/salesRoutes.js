@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
 
     // Guardar la venta en la base de datos
     const sale = new Sale({
-      price: req.body.price,
+      price,
       ean,
       quantity
       // El campo saleNumber ya no es necesario
