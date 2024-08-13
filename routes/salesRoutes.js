@@ -5,26 +5,62 @@ const Sale = require('../models/Sale'); // Importa el modelo Sale
 
 // Ruta para registrar una venta
 router.post('/', async (req, res) => {
+    try {
+      const { ean, quantity } = req.body;
+      if (!ean || quantity == null) return res.status(400).json({ error: 'EAN and quantity are required' });
+  
+      // Buscar el producto por EAN
+      const product = await Product.findOne({ ean });
+      if (!product) return res.status(404).json({ error: 'Product not found' });
+      if (product.stock < quantity) return res.status(400).json({ error: 'Insufficient stock' });
+  
+      // Actualizar el stock del producto
+      product.stock -= quantity;
+      await product.save();
+  
+      // Guardar la venta en la base de datos
+      const sale = new Sale({
+        ean,
+        quantity,
+        saleNumber: await generateSaleNumber() // Genera el número de venta
+      });
+      await sale.save();
+  
+      res.status(201).json(sale); // Devuelve la venta registrada
+    } catch (error) {
+      console.error('Error registering sale:', error); // Log el error
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+// Ruta para obtener todas las ventas
+router.get('/', async (req, res) => {
   try {
-    const { ean, quantity } = req.body;
-    if (!ean || quantity == null) return res.status(400).json({ error: 'EAN and quantity are required' });
-
-    const product = await Product.findOne({ ean });
-    if (!product) return res.status(404).json({ error: 'Product not found' });
-    if (product.stock < quantity) return res.status(400).json({ error: 'Insufficient stock' });
-
-    product.stock -= quantity;
-    await product.save();
-
-    // Guardar la venta en la base de datos
-    const sale = new Sale({ ean, quantity });
-    await sale.save();
-
-    res.status(200).json({ message: 'Sale registered successfully' });
+    const sales = await Sale.find();
+    res.status(200).json(sales);
   } catch (error) {
-    console.error('Error registering sale:', error); // Log el error
+    console.error('Error fetching sales data:', error); // Log el error
     res.status(500).json({ error: error.message });
   }
 });
+
+// Ruta para obtener una venta por ID
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sale = await Sale.findById(id);
+    if (!sale) return res.status(404).json({ error: 'Sale not found' });
+    res.status(200).json(sale);
+  } catch (error) {
+    console.error('Error fetching sale by ID:', error); // Log el error
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Función para generar el número de venta
+const generateSaleNumber = async () => {
+  const lastSale = await Sale.findOne().sort({ saleNumber: -1 });
+  return lastSale ? lastSale.saleNumber + 1 : 1;
+};
 
 module.exports = router;
