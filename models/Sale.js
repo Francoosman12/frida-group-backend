@@ -7,6 +7,7 @@ const saleSchema = new mongoose.Schema({
   price: { type: Number, required: true }, // Cambiado a Number
   date: { type: Date, default: Date.now },
   description: { type: String, default: 'N/A' },
+  total: { type: Number, required: true },
 });
 
 
