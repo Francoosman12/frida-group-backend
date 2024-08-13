@@ -1,11 +1,15 @@
+// src/models/Sale.js
+const mongoose = require('mongoose'); // Asegúrate de importar mongoose
+
 const saleSchema = new mongoose.Schema({
-    ean: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    price: { type: Number, required: true }, // Asegúrate de que 'price' es un número
-    date: { type: Date, default: Date.now },
-    description: { type: String, default: 'N/A' }
-  });
-  
+  ean: { type: String, required: true },
+  quantity: { type: Number, required: true },
+  price: { type: Number, required: true }, // Cambiado a Number
+  date: { type: Date, default: Date.now },
+  description: { type: String, default: 'N/A' },
+  saleNumber: { type: Number } // Añadido el campo saleNumber
+});
+
 // Middleware para generar el número de venta secuencial
 saleSchema.pre('save', async function(next) {
   if (this.isNew) {
