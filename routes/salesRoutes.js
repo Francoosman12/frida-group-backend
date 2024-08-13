@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const Sale = require('../models/Sale');
+const Product = require('../models/Product');
+
 
 // POST a new sale
 router.post('/', async (req, res) => {
@@ -35,5 +37,16 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// GET all sales
+router.get('/', async (req, res) => {
+    try {
+      const sales = await Sale.find();
+      res.status(200).json(sales);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
 
 module.exports = router;
