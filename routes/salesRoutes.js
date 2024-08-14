@@ -9,9 +9,9 @@ router.post('/', async (req, res) => {
 
     console.log('Request body:', req.body); // Verifica los datos recibidos
 
-    // Asegúrate de que el precio esté incluido en el cuerpo de la solicitud
-    if (price === undefined || price === null) {
-        return res.status(400).json({ error: 'Price is required' });
+    // Asegúrate de que el precio y la cantidad estén incluidos en el cuerpo de la solicitud
+    if (price === undefined || price === null || quantity === undefined || quantity === null) {
+        return res.status(400).json({ error: 'Price and quantity are required' });
     }
 
     try {

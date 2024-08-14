@@ -1,4 +1,4 @@
-const Sale = require('../models/Sale'); // Asegúrate de que esta línea está correctamente importando Sale
+const Sale = require('../models/Sale');
 const Product = require('../models/Product');
 
 const createSale = async (req, res) => {
@@ -37,7 +37,7 @@ const createSale = async (req, res) => {
 
     res.status(201).json(savedSale);
   } catch (error) {
-    console.error('Error creating sale:', error); // Información de error
+    console.error('Error creating sale:', error);
     res.status(500).json({ error: error.message });
   }
 };

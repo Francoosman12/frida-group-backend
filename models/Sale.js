@@ -1,12 +1,11 @@
-const mongoose = require('mongoose'); // Asegúrate de importar mongoose
+const mongoose = require('mongoose');
 
 const saleSchema = new mongoose.Schema({
   ean: { type: String, required: true },
   quantity: { type: Number, required: true },
-  price: { type: Number, required: true }, // Agrega el campo de precio
-  date: { type: Date, default: Date.now },
-  description: { type: String, default: 'N/A' },
+  price: { type: Number, required: true }, // Asegúrate de que el precio esté incluido
   total: { type: Number, required: true },
+  date: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('Sale', saleSchema);
