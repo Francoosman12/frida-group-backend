@@ -3,8 +3,6 @@ const Product = require('../models/Product');
 
 const createSale = async (req, res) => {
   try {
-    console.log('Request body:', req.body); // Verifica los datos recibidos
-
     const { ean, quantity, price } = req.body;
     if (!ean || quantity == null || price == null) {
       return res.status(400).json({ error: 'EAN, quantity, and price are required' });
@@ -38,20 +36,16 @@ const createSale = async (req, res) => {
   }
 };
 
-// Nuevo método para obtener ventas
 const getSales = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
+    const filter = {};
 
-    const query = {};
     if (startDate && endDate) {
-      query.date = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate)
-      };
+      filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
 
-    const sales = await Sale.find(query).populate('product'); // Puedes agregar el populate si necesitas detalles del producto
+    const sales = await Sale.find(filter);
     res.status(200).json(sales);
   } catch (error) {
     console.error('Error fetching sales:', error);
