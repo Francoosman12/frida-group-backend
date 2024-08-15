@@ -22,7 +22,7 @@ const createSale = async (req, res) => {
       quantity,
       price,
       total: price * quantity,
-      product: product._id // Asocia el producto con la venta
+      description: product.description
     });
 
     const savedSale = await sale.save();
@@ -47,7 +47,12 @@ const getSales = async (req, res) => {
     }
 
     // Usar populate para incluir la información del producto
-    const sales = await Sale.find(filter).populate('product', 'description');
+    const sales = await Sale.find(filter).populate(
+        {
+            path: 'product',
+            select: 'description' // Selecciona el campo description
+          }
+    );
 
     res.status(200).json(sales);
   } catch (error) {
