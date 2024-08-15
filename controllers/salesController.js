@@ -22,6 +22,7 @@ const createSale = async (req, res) => {
       quantity,
       price,
       total: price * quantity,
+      product: product._id // Asocia el producto con la venta
     });
 
     const savedSale = await sale.save();
@@ -45,7 +46,9 @@ const getSales = async (req, res) => {
       filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
 
-    const sales = await Sale.find(filter);
+    // Usar populate para incluir la información del producto
+    const sales = await Sale.find(filter).populate('product', 'description');
+
     res.status(200).json(sales);
   } catch (error) {
     console.error('Error fetching sales:', error);
