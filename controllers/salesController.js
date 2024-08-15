@@ -3,24 +3,22 @@ const Product = require('../models/Product');
 
 const createSale = async (req, res) => {
   try {
+    console.log('Request body:', req.body); // Verifica los datos recibidos
+
     const { ean, quantity, price } = req.body;
     if (!ean || quantity == null || price == null) {
       return res.status(400).json({ error: 'EAN, quantity, and price are required' });
     }
 
-    // Verifica si el producto existe
     const product = await Product.findOne({ ean });
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    // Verifica el stock
     if (product.stock < quantity) return res.status(400).json({ error: 'Out of stock' });
 
-    // Verifica que el precio coincide con el del producto
     if (product.price !== price) {
       return res.status(400).json({ error: 'Price mismatch' });
     }
 
-    // Crea la venta
     const sale = new Sale({
       ean,
       quantity,
@@ -28,10 +26,8 @@ const createSale = async (req, res) => {
       total: price * quantity,
     });
 
-    // Guarda la venta
     const savedSale = await sale.save();
 
-    // Actualiza el stock del producto
     product.stock -= quantity;
     await product.save();
 
@@ -42,4 +38,25 @@ const createSale = async (req, res) => {
   }
 };
 
-module.exports = { createSale };
+// Nuevo método para obtener ventas
+const getSales = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const query = {};
+    if (startDate && endDate) {
+      query.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const sales = await Sale.find(query).populate('product'); // Puedes agregar el populate si necesitas detalles del producto
+    res.status(200).json(sales);
+  } catch (error) {
+    console.error('Error fetching sales:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { createSale, getSales };
