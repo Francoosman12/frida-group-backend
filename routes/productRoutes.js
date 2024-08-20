@@ -13,15 +13,30 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET product by EAN
+// GET product by EAN or description
 router.get('/search', async (req, res) => {
   try {
-    const { ean } = req.query;
-    if (!ean) return res.status(400).json({ message: 'EAN is required' });
+    const { ean, description } = req.query;
 
-    const product = await Product.findOne({ ean });
-    if (product) {
-      res.json(product);
+    if (!ean && !description) {
+      return res.status(400).json({ message: 'EAN or description is required' });
+    }
+
+    let query = {};
+
+    if (ean) {
+      query.ean = ean;
+    }
+
+    if (description) {
+      // Buscar por descripción usando una expresión regular para coincidencias parciales
+      query.description = new RegExp(description, 'i');
+    }
+
+    const products = await Product.find(query);
+
+    if (products.length > 0) {
+      res.json(products);
     } else {
       res.status(404).json({ message: 'Product not found' });
     }
@@ -29,6 +44,7 @@ router.get('/search', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // POST a new product
 router.post('/', async (req, res) => {
