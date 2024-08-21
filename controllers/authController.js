@@ -12,20 +12,6 @@ const register = async (req, res) => {
   }
 };
 
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-
-const register = async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body;
-    const user = new User({ name, email, password, role });
-    await user.save();
-    res.status(201).json({ message: 'User registered successfully' });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -44,18 +30,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports = { register, login, getUserProfile };
-
 
 const getUserProfile = async (req, res) => {
   try {
