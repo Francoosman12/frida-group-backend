@@ -4,6 +4,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const salesRoutes = require('./routes/salesRoutes');
 const productRoutes = require('./routes/productRoutes');
+const authRoutes = require('./routes/authRoutes');
+const shiftRoutes = require('./routes/shiftRoutes');
 require('dotenv').config();  // Cargar variables de entorno desde .env
 
 const app = express();
@@ -18,8 +20,10 @@ mongoose.connect(process.env.MONGODB_URI)
 .catch(err => console.error('MongoDB connection error:', err));
 
 // Rutas
-app.use('/sales', salesRoutes);
-app.use('/products', productRoutes);
+app.use('/api/sales', salesRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/shifts', shiftRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
