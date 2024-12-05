@@ -2,7 +2,7 @@
     "version": 2,
     "builds": [
       {
-        "src": "server.js", 
+        "src": "server.js",
         "use": "@vercel/node"
       }
     ],
@@ -35,12 +35,5 @@
         "src": "/(.*)",
         "dest": "/index.html"
       }
-    ],
-    "env": {
-      "CLOUDINARY_URL": "@cloudinary-url",
-      "DB_URI": "@db-uri",                   
-     "JWT_SECRET": "@jwt-secret"                },
-    "static": {
-      "public": "uploads"    }
+    ]
   }
-  
