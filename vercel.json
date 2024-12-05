@@ -13,23 +13,23 @@
       },
       {
         "src": "/api/auth/(.*)",
-        "dest": "/Controllers/authController.js"
+        "dest": "/api/auth/$1"
       },
       {
         "src": "/api/products/(.*)",
-        "dest": "/Controllers/productController.js"
+        "dest": "/api/products/$1"
       },
       {
         "src": "/api/sales/(.*)",
-        "dest": "/Controllers/salesController.js"
+        "dest": "/api/sales/$1"
       },
       {
         "src": "/api/shift/(.*)",
-        "dest": "/Controllers/shiftController.js"
+        "dest": "/api/shift/$1"
       },
       {
         "src": "/api/users/(.*)",
-        "dest": "/Controllers/userController.js"
+        "dest": "/api/users/$1"
       },
       {
         "src": "/(.*)",
@@ -37,3 +37,4 @@
       }
     ]
   }
+  
