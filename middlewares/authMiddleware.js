@@ -17,7 +17,9 @@ const authenticateToken = (req, res, next) => {
 };
 
 const authorizeAdmin = (req, res, next) => {
-  if (req.user.role !== 'admin') return res.sendStatus(403); // Solo admin puede acceder
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Acceso denegado. Solo administradores pueden acceder a esta ruta' });
+  }
   next();
 };
 

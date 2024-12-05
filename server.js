@@ -6,6 +6,9 @@ const salesRoutes = require('./routes/salesRoutes');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 const shiftRoutes = require('./routes/shiftRoutes');
+const userRoutes = require('./routes/userRoutes');
+const path = require('path');
+
 require('dotenv').config();  // Cargar variables de entorno desde .env
 
 const app = express();
@@ -24,6 +27,8 @@ app.use('/api/sales', salesRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/shifts', shiftRoutes);
+app.use('/api', userRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

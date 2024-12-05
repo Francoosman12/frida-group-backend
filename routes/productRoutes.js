@@ -1,7 +1,8 @@
-// routes/productRoutes.js
 const express = require('express');
 const router = express.Router();
+const upload = require('../middlewares/cloudinaryConfig');
 const Product = require('../models/Product');
+
 
 // GET all products
 router.get('/', async (req, res) => {
@@ -30,10 +31,12 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// POST a new product
-router.post('/', async (req, res) => {
+// POST a new product (con imagen en Cloudinary)
+router.post('/', upload.single('image'), async (req, res) => {
   const { ean, description, price, stock } = req.body;
-  const product = new Product({ ean, description, price, stock });
+  const image = req.file ? req.file.path : null; // `req.file.path` ya debería ser la URL proporcionada por Cloudinary
+
+  const product = new Product({ ean, description, price, stock, image });
 
   try {
     const newProduct = await product.save();
@@ -43,22 +46,23 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT update a product
-router.put('/:id', async (req, res) => {
-  try {
-    const { ean, description, price, stock } = req.body;
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { ean, description, price, stock },
-      { new: true }
-    );
+// PUT update a product (con imagen en Cloudinary)
+router.put('/:id', upload.single('image'), async (req, res) => {
+  const { ean, description, price, stock } = req.body;
+  const image = req.file ? req.file.path : null;
 
+  const updateData = { ean, description, price, stock };
+  if (image) updateData.image = image;
+
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!product) return res.status(404).json({ message: 'Product not found' });
     res.json(product);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
+
 
 // DELETE a product
 router.delete('/:id', async (req, res) => {
