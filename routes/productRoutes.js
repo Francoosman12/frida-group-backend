@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../middlewares/cloudinaryConfig');
 const Product = require('../models/Product');
-
+const QRCode = require('qrcode'); // Importamos la librería QRCode para generar los códigos QR
+const cloudinary = require('cloudinary').v2; // Necesitamos Cloudinary para subir imágenes
+const { v4: uuidv4 } = require('uuid'); // Usamos UUID para generar un ID único para el QR
 
 // GET all products
 router.get('/', async (req, res) => {
@@ -31,27 +33,67 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// POST a new product (con imagen en Cloudinary)
-router.post('/', upload.single('image'), async (req, res) => {
-  const { ean, description, price, stock } = req.body;
-  const image = req.file ? req.file.path : null; // `req.file.path` ya debería ser la URL proporcionada por Cloudinary
+// Función para generar un EAN único de 13 dígitos
+async function generateUniqueEAN() {
+  let ean;
+  let isUnique = false;
 
-  const product = new Product({ ean, description, price, stock, image });
+  while (!isUnique) {
+    ean = Math.floor(1000000000000 + Math.random() * 9000000000000).toString(); // Genera un número aleatorio de 13 dígitos
+    const existingProduct = await Product.findOne({ ean });
+    if (!existingProduct) isUnique = true;
+  }
+
+  return ean;
+}
+
+// POST a new product (con imagen y QR)
+router.post('/', upload.single('image'), async (req, res) => {
+  const { description, price, stock } = req.body;
+  const image = req.file ? req.file.path : null;
 
   try {
+    // Generar un EAN único
+    const ean = await generateUniqueEAN();
+
+    // Generar el código QR con el EAN
+    const qrCodeImage = await QRCode.toDataURL(ean);
+    console.log('QR Code Base64:', qrCodeImage);
+
+    // Subir el QR a Cloudinary
+    const qrCodeUpload = await cloudinary.uploader.upload(qrCodeImage, {
+      folder: 'products_qr',
+      public_id: `qr_${ean}`,
+      resource_type: 'image',
+      format: 'png',
+    });
+
+    // Crear el producto
+    const product = new Product({
+      ean, // EAN único generado
+      description,
+      price,
+      stock,
+      image,
+      qrCodeUrl: qrCodeUpload.secure_url, // URL del QR generado
+    });
+
+    // Guardar el producto en la base de datos
     const newProduct = await product.save();
     res.status(201).json(newProduct);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ message: err.message });
   }
 });
 
+
 // PUT update a product (con imagen en Cloudinary)
 router.put('/:id', upload.single('image'), async (req, res) => {
-  const { ean, description, price, stock } = req.body;
+  const { description, price, stock } = req.body;
   const image = req.file ? req.file.path : null;
 
-  const updateData = { ean, description, price, stock };
+  const updateData = { description, price, stock };
   if (image) updateData.image = image;
 
   try {
@@ -62,7 +104,6 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-
 
 // DELETE a product
 router.delete('/:id', async (req, res) => {
