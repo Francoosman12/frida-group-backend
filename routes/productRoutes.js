@@ -57,16 +57,27 @@ router.post('/', upload.single('image'), async (req, res) => {
     const ean = await generateUniqueEAN();
 
     // Generar el código QR con el EAN
-    const qrCodeImage = await QRCode.toDataURL(ean);
-    console.log('QR Code Base64:', qrCodeImage);
+    let qrCodeImage;
+    try {
+      qrCodeImage = await QRCode.toDataURL(ean);
+    } catch (err) {
+      console.error('Error al generar el código QR:', err.message);
+      throw new Error('No se pudo generar el código QR');
+    }
 
     // Subir el QR a Cloudinary
-    const qrCodeUpload = await cloudinary.uploader.upload(qrCodeImage, {
-      folder: 'products_qr',
-      public_id: `qr_${ean}`,
-      resource_type: 'image',
-      format: 'png',
-    });
+    let qrCodeUpload;
+    try {
+      qrCodeUpload = await cloudinary.uploader.upload(qrCodeImage, {
+        folder: 'products_qr',
+        public_id: `qr_${ean}`,
+        resource_type: 'image',
+        format: 'png',
+      });
+    } catch (err) {
+      console.error('Error al subir el QR a Cloudinary:', err.message);
+      throw new Error('No se pudo subir el código QR a Cloudinary');
+    }
 
     // Crear el producto
     const product = new Product({
@@ -78,11 +89,10 @@ router.post('/', upload.single('image'), async (req, res) => {
       qrCodeUrl: qrCodeUpload.secure_url, // URL del QR generado
     });
 
-    // Guardar el producto en la base de datos
     const newProduct = await product.save();
     res.status(201).json(newProduct);
   } catch (err) {
-    console.error(err);
+    console.error('Error al crear el producto:', err.message);
     res.status(400).json({ message: err.message });
   }
 });
