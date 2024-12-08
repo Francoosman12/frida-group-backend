@@ -47,6 +47,19 @@ async function generateUniqueEAN() {
   return ean;
 }
 
+// Nueva ruta para obtener productos para etiquetas
+router.get('/products-for-labels', async (req, res) => {
+  try {
+    // Seleccionamos solo los campos que necesitamos para las etiquetas
+    const products = await Product.find().select('ean description price qrCodeUrl');
+    res.status(200).json(products); // Enviamos los productos como respuesta
+  } catch (err) {
+    console.error('Error al obtener productos para etiquetas:', err.message);
+    res.status(500).json({ message: 'Error al obtener productos' });
+  }
+});
+
+
 // POST a new product (con imagen y QR)
 router.post('/', upload.single('image'), async (req, res) => {
   const { description, price, stock } = req.body;
