@@ -5,8 +5,9 @@ const saleSchema = new mongoose.Schema({
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
   total: { type: Number, required: true },
+  paymentMethod: { type: String, required: true }, // Campo agregado
   date: { type: Date, default: Date.now },
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' } // Este campo debe existir
+  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
 });
 
 module.exports = mongoose.model('Sale', saleSchema);

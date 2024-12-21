@@ -3,7 +3,7 @@ const Product = require('../models/Product');
 
 const createSale = async (req, res) => {
   try {
-    const { ean, quantity, price } = req.body;
+    const { ean, quantity, price, paymentMethod } = req.body;
     if (!ean || quantity == null || price == null) {
       return res.status(400).json({ error: 'EAN, quantity, and price are required' });
     }
@@ -22,8 +22,9 @@ const createSale = async (req, res) => {
       quantity,
       price,
       total: price * quantity,
-      description: product.description,
-      product: product._id // Guardar la referencia al producto
+      description: product.description, // Agregar la descripción del producto
+      product: product._id, // Guardar la referencia al producto
+      paymentMethod: paymentMethod || 'efectivo', // Método de pago (opcional)
     });
 
     const savedSale = await sale.save();
